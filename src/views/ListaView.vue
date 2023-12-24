@@ -1,69 +1,71 @@
-<!-- <template>
-    <div class="calendario">
-      <h1>This is an about sdfasdf</h1>
-    </div>
-  </template> -->
-
 <script>
 import FullCalendar from '@fullcalendar/vue3'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import listPlugin from '@fullcalendar/list'
 import NewEvent from '../components/NewEvent.vue'
+import Dialog from 'vue3-dialog';
+import { mapState } from 'vuex';
 
+const myModal = document.getElementById('exampleModal')
+const show = false
 export default {
     components: {
         FullCalendar,
-        NewEvent
+        NewEvent,
+        // Dialog
+    },
+    computed: {
+        ...mapState(['modalVisible', 'eventos']),
     },
     data() {
         return {
             calendarOptions: {
-                plugins: [listPlugin],
+                plugins: [listPlugin, interactionPlugin],
                 initialView: 'listWeek',
-                // weekends: false,
-                // dateClick: this.handleDateClick,
-                events: [
-                    {
-                        title: 'Meeting',
-                        start: '2023-12-23T14:30:00',
-                        extendedProps: {
-                            status: 'done'
-                        }
+                dateClick: this.handleDateClick,
+                events: this.$store.state.eventos.map(evento => ({
+                    title: evento.nota,
+                    start: `${evento.fecha}T${evento.hora}:00`,
+                    extendedProps: {
+                        nota: evento.nota,
                     },
-                    {
-                        title: 'Birthday Party',
-                        start: '2019-08-13T07:00:00',
-                        backgroundColor: 'green',
-                        borderColor: 'green'
-                    }
-                ],
-            }
+                })),
+            },
+            modalVisible: false,
         }
     },
     methods: {
-        // handleDateClick: function (arg) {
-        //     alert('date click! ' + arg.dateStr)
-        // },
-        // toggleWeekends: function () {
-        //     this.calendarOptions.weekends = !this.calendarOptions.weekends // toggle the boolean!
-        // }
+        handleDateClick: function (arg) {
+            console.log(arg, this.$store.state.modalVisible['.Array']);
+
+            this.$store.commit('mostrarModal');
+            this.$store.state.eventos
+        },
     }
 }
 </script>
-  
-  
+
+
 <template>
     <div class="lista">
-        <!-- <button @click="toggleWeekends">toggle weekends</button> -->
 
         <FullCalendar :options="calendarOptions">
-            <!-- <template v-slot:eventContent='arg'>
-                <b>{{ arg.event.title }}</b>
-            </template> -->
+
         </FullCalendar>
 
-        <NewEvent/>
+    </div>
+
+
+    <div v-if="this.$store.state.modalVisible" class="modal fade show" style="display: block;">
+        <NewEvent></NewEvent>
     </div>
 </template>
-  
+
+
+<style>
+.calendario {
+    width: 90%;
+    margin-left: 5%;
+}
+</style>

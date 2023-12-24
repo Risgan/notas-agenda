@@ -1,82 +1,71 @@
-<!-- <template>
-    <div class="calendario">
-      <h1>This is an about sdfasdf</h1>
-    </div>
-  </template> -->
-
 <script>
 import FullCalendar from '@fullcalendar/vue3'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import NewEvent from '../components/NewEvent.vue'
+import Dialog from 'vue3-dialog';
+import { mapState } from 'vuex';
 
+const myModal = document.getElementById('exampleModal')
+const show = false
 export default {
   components: {
     FullCalendar,
-    NewEvent
+    NewEvent,
+    // Dialog
   },
-  data() {
+  computed: {
+    ...mapState(['modalVisible','eventos']),
+  },
+   data() {
     return {
       calendarOptions: {
         plugins: [dayGridPlugin, interactionPlugin],
         initialView: 'dayGridMonth',
         dateClick: this.handleDateClick,
-        events: [
-          {
-            title: 'Meeting',
-            start: '2023-12-23T14:30:00',
-            extendedProps: {
-              status: 'done'
-            }
+        events:  this.$store.state.eventos.map(evento => ({
+          title: evento.nota,
+          start: `${evento.fecha}T${evento.hora}:00`,
+          extendedProps: {
+            nota: evento.nota,
           },
-        ]
-      }
+        })),
+      },
+      modalVisible: false,
     }
   },
   methods: {
-    handleDateClick: function(arg) {
-      alert('date click! ' + arg.dateStr)
-    },
-    // eventClick: function (info) {
-    //   console.log(info);
-    //   alert('Event: ' + info);
-    //   // alert('Coordinates: ' + info.jsEvent.pageX + ',' + info.jsEvent.pageY);
-    //   // alert('View: ' + info.view.type);
+    handleDateClick: function (arg) {
+      console.log(arg, this.$store.state.modalVisible['.Array']);
 
-    //   // change the border color just for fun
-    //   // info.el.style.borderColor = 'red';
-    // }
+      this.$store.commit('mostrarModal');
+      this.$store.state.eventos
+    },
   }
 }
 </script>
 
 
 <template>
-  <div class="calendario">
-    <div>
-  <b-card
-    title="Card Title"
-    img-src="https://picsum.photos/600/300/?image=25"
-    img-alt="Image"
-    img-top
-    tag="article"
-    style="max-width: 20rem;"
-    class="mb-2"
-  >
-    <b-card-text>
-      Some quick example text to build on the card title and make up the bulk of the card's content.
-    </b-card-text>
 
-    <b-button href="#" variant="primary">Go somewhere</b-button>
-  </b-card>
-</div>
-    <!-- <NewEvent/> -->
+  <div class="calendario">
 
     <FullCalendar :options="calendarOptions">
-      <!-- <template v-slot:eventContent='arg'>
-                <b>{{ arg.event.title }}</b>
-            </template> -->
+
     </FullCalendar>
-    
+
+  </div>
+
+
+  <div v-if=" this.$store.state.modalVisible" class="modal fade show" style="display: block;">
+    <NewEvent></NewEvent>
   </div>
 </template>
+
+
+<style>
+.calendario {
+  width: 90%;
+  margin-left: 5%;
+}
+</style>
